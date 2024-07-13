@@ -17,12 +17,8 @@
 1. wget http://nlp.stanford.edu/data/glove.6B.zip
    unzip glove*.zip
 2. First pull the environment for running the code from docker-hub using. 
-   docker pull tirthankar95/rl-nlp:latest
-3. sudo docker run -p 8888:8888 -v $(pwd):/NumberLearningInChildren_ML tirthankar95/rl-nlp &
-4. sudo docker ps 
-   -> Get the name of the image.
-5. Go inside the container ~ sudo docker exec -it angry_lewin bash 
-   -> Here "angry_lewin" is the name of the container
-6. Run from the main directory ~ python3 -W ignore RL_Algorithm/PPO/ppo.py &> Results/console.log &
-7. Run from the main directory ~ python3 -W ignore RL_Algorithm/PPO/ppo_post_run.py &
+   sudo docker pull tirthankar95/rl-nlp:latest
+3. sudo docker run -it -v $(pwd):/NumberLearningInChildren_ML tirthankar95/rl-nlp /bin/bash
+4. Run from the main directory ~ python3 -W ignore RL_Algorithm/PPO/ppo.py &> Results/console.log &
+5. Run from the main directory ~ python3 -W ignore RL_Algorithm/PPO/ppo_post_run.py &
 ---
