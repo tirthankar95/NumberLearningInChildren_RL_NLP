@@ -33,5 +33,6 @@ Where,
 {z2}-> {"state": "s", "policy":""}
 
 For example:-
-final_score.txt will change to console_output_digit3_3 if 3 digit numbers are present, if the model id is 3 and if instruction type is "policy".  
+final_score.txt will change to console_output_digit3_3 if 3 digit numbers are present, if the model id is 3 and if instruction type is "policy". 
+ 
 3. Run **python3 Plot_redx.py policy** or **python3 Plot_redx.py state** inside the container based on whether instruction type is `(policy/state)`.
