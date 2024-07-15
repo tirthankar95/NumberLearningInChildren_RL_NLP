@@ -1,4 +1,5 @@
 import numpy as np 
+np.random.seed(2020)
 import matplotlib.pyplot as plt 
 import seaborn as sns
 import torch 
@@ -6,7 +7,6 @@ import torchvision.transforms as transforms
 from PIL import Image
 import cv2
 import json 
-import random
 from functools import cmp_to_key
 suffix = [['easy','medium','hard','naive'], \
           ['fnlp_easy','fnlp_medium','fnlp_hard','fnlp_naive'], \
@@ -130,6 +130,7 @@ def gen_data_level_based(opt, args):
     def compare(i1,i2):
         return sum_digits(i1) - sum_digits(i2)
     m=int(len(valid)*0.8)
+    np.random.shuffle(valid)
     train, test = valid[:m],valid[m:]
     train = sorted(train,key=cmp_to_key(compare))
     test = sorted(test,key=cmp_to_key(compare))

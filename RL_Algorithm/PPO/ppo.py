@@ -21,9 +21,7 @@ import json
 import copy
 import gym 
 import gym_examples
-import math
 import time
-import numpy as np 
 import logging 
 
 
