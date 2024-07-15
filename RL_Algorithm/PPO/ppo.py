@@ -300,7 +300,7 @@ if __name__=='__main__':
             if frame_idx % 50000 == 0:
                 test_reward = np.mean([test_env(model) for _ in range(1)])
                 test_rewards.append([frame_idx,test_reward])
-                with open(f'Results/test_reward_list_{suffix[args["model"]][args["ease"]]}.json', 'w') as file:
+                with open(f'Results/reward_list_{suffix[args["model"]][args["ease"]]}.json', 'w') as file:
                     json.dump(test_rewards, file)
                 if test_reward > threshold_reward: early_stop = True
             if frame_idx % 50000 == 0:
