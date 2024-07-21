@@ -1,14 +1,14 @@
 **The Reinforcement Learning Environment**
 
 `Policy type instruction [DEMO]`
-![Policy Type Instruction](src/RL_ENV.gif)
+![Policy Type Instruction](Readme_Images/RL_ENV.gif)
 ---
 **Software Architecture**
 
 `During Training`
-![Software Architecture during training](src/SA_train.png)
+![Software Architecture during training](Readme_Images/SA_train.png)
 `During Testing`
-![Software Architecture during testing](src/SA_test.png)
+![Software Architecture during testing](Readme_Images/SA_test.png)
 
 ---
 **How to run the code?**
