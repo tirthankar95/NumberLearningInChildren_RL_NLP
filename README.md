@@ -25,12 +25,12 @@
 1. You can generate your own code for custom analysis. To reproduce our results copy `Results/final_score.txt` and `Results/reward_list_*` to **Analysis** folder. 
 2. Rename `final_score.txt` as `console_output_digit{x}_{y}{z1}` and `reward_list_*` as `train_model{y}_d{x}{z2}.txt{a}`
 
-Where,
-{a} -> seed_#id
-{x} -> no of digits: {1, 2, 3}
-{y} -> model number: {0, 1, 2, 3}
-{z1}-> {"sate": "_sr", "policy": ""}
-{z2}-> {"state": "s", "policy":""}
+Where, <br />
+{a} -> {"", "seed_0", "seed_1", ... } <br />
+{x} -> no of digits: {1, 2, 3} <br />
+{y} -> model number: {0, 1, 2, 3} <br />
+{z1}-> {"sate": "s", "policy":""} <br />
+{z2}-> {"state": "s", "policy":""} <br />
 
 For example:-
 final_score.txt will change to console_output_digit3_3 if 3 digit numbers are present, if the model id is 3 and if instruction type is "policy". 

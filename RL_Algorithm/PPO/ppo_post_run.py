@@ -20,17 +20,17 @@ import model_simple as M_Simp
 logging.basicConfig(filename='Results/final_score.txt', filemode='w', level = logging.INFO, format='%(asctime)3s - %(filename)s:%(lineno)d - %(message)s')
 LOG = logging.getLogger(__name__)
 
-def plot_ppo(ip,op):
-    arr=[]
-    with open(f'{ip}', 'r') as file:
-        arr=json.load(file)
-        x,y=[arr[i][0] for i in range(len(arr))], [arr[i][1] for i in range(len(arr))]
-        plt.plot(x,y)
-        plt.xlabel(f'Frame Number')
-        plt.ylabel(f'Cumulative Reward')
-        plt.savefig(f'{op}/creward.png',dpi=150)
-        LOG.info(f'PLOT PATH: {op}/creward.png')
-        plt.show()
+# def plot_ppo(ip,op):
+#     arr=[]
+#     with open(f'{ip}', 'r') as file:
+#         arr=json.load(file)
+#         x,y=[arr[i][0] for i in range(len(arr))], [arr[i][1] for i in range(len(arr))]
+#         plt.plot(x,y)
+#         plt.xlabel(f'Frame Number')
+#         plt.ylabel(f'Cumulative Reward')
+#         plt.savefig(f'{op}/creward.png',dpi=150)
+#         LOG.info(f'PLOT PATH: {op}/creward.png')
+#         plt.show()
 
 def run_agent(number,opt):
     def policy(S):
@@ -105,10 +105,7 @@ if __name__=='__main__':
     for key,value in paths.items(): 
         if key != models_to_test[args["model"]][args["ease"]]: continue
         LOG.info(f'TEST NAME {key}')
-        '''
-            PLOT Tr Graph.
-        '''
-        plot_ppo(value["train_result_plot"],value["output_path"])
+        # plot_ppo(value["train_result_plot"],value["output_path"])
         '''
             See Results.
         '''
