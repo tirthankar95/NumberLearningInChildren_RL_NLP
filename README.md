@@ -24,14 +24,15 @@
 **Analysis**
 1. You can generate your own code for custom analysis. To reproduce our results copy `Results/final_score_*` and `Results/train_model_*` to **Analysis** folder. 
 2. Append {a} to `train_model_*.json{a}` in Analysis folder.
+   
    Where, <br />
-   {a} -> {"", "seed_0", "seed_1", ... } <br />
+   {a} -> {"", "seed_0", "seed_1", ... } depending on whether it's the {1st, 2nd, 3rd, ...} run of the same configuration.<br />
    <!--{x} -> no of digits: {1, 2, 3} <br />
    {y} -> model number: {0, 1, 2, 3} <br />
    {z} -> {"sate": "s", "policy":""} <br />  -->
  
 3. Run **python3 Plot_redx.py** inside the container.
 4. To create consolidated graphs modify **train_config.json** and **test_config.json**, by trying out all the combinations below.  
-model number $\epsilon$ {0, 1, 2, 3}<br />
-instr_type $\epsilon$ {0, 1}<br />
-And then do step 1 & 2, after dumping all the necessary files in the Analysis folder.
+`model` $\epsilon$ {0, 1, 2, 3}<br />
+`instr_type` $\epsilon$ {0, 1}<br />
+And then do step 1 & 2, after dumping all the necessary files in the Analysis folder do step 3. This will give consolidated graphs as depicted in the paper.
