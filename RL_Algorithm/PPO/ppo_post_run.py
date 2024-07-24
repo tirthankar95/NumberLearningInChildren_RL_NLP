@@ -17,8 +17,11 @@ import gym_examples
 import copy
 import model_simple as M_Simp
 
-logging.basicConfig(filename='Results/final_score.txt', filemode='w', level = logging.INFO, format='%(asctime)3s - %(filename)s:%(lineno)d - %(message)s')
-LOG = logging.getLogger(__name__)
+LOG = None 
+def create_result_file(y: int, z: str):
+    global LOG 
+    logging.basicConfig(filename=f'Results/final_score_d3_{y}{z}', filemode='w', level = logging.INFO, format='%(asctime)3s - %(filename)s:%(lineno)d - %(message)s')
+    LOG = logging.getLogger(__name__)
 
 # def plot_ppo(ip,op):
 #     arr=[]
@@ -93,6 +96,7 @@ if __name__=='__main__':
     FOR NEW TYPE OF INSTRUCTION (START)
     '''
     instr_type = "policy" if args["instr_type"] == 0 else "state"
+    create_result_file(args["model"], "" if args["instr_type"] == 0 else "s")
     if instr_type == "state":
         for model_to_test in models_to_test:
             for id, model in enumerate(model_to_test):

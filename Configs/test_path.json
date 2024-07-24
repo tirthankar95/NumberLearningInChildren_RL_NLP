@@ -97,7 +97,7 @@
 			"train_set": "Results/train_setanlp_easy.json",
 			"test_set": "Results/test_setanlp_easy.json",
 			"train_result_plot": "Results/reward_list_anlp_easy_stateInstr.json",
-			"output_path": "Results/nlp_stateInstr"
+			"output_path": "Results"
 	},
 	"model_anlp_easy":{
 		"model": {

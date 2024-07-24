@@ -16,11 +16,11 @@ N_MODELS = 4
 prefix = ""
 label_arr = ['Model 1: Visual only', 'Model 2: Pretrained', 'Model 3: Language only', 'Model 4: Attention based']
 color_arr = ["blue", "green", "orange", "purple"]
-suffix_arr = ["", "_seed1", "_seed2"]
+seed_arr = ["", "_seed1", "_seed2"]
 smooth_factor = 0.5
 
 '''
-    Extract reward from final_score.txt
+    Extract reward from final_score*
 '''
 def extract_hist(filename, type, test_type='[TEST]'):
     def avg(a, b):
@@ -99,91 +99,95 @@ def extract_hist(filename, type, test_type='[TEST]'):
 '''
     Tr curve plot.
 '''
-def tr_curve(suffix=""):
-    plt.figure(figsize=(10,5))
-    ############## MODEL 0, 1, 2, 3 ############## 
-    for i in range(N_MODELS): # First three models.
-        y, x, n = [], [], 0
-        for j in range(len(suffix_arr)):
-            try:
-                with open(f"{prefix}train_model{i}_d3{suffix}.txt{suffix_arr[j]}", "r") as file:
-                    content = file.read()
-                    my_list = ast.literal_eval(content)
-                    n = len(my_list)
-                    y.append([ my_list[i][1] for i in range(n) ])
-                    x.append([ my_list[i][0] for i in range(n) ])
-            except Exception as e:
-                print(f'{prefix}train_model{i}_d3{suffix}.txt{suffix_arr[j]} missing.')
-        xn, y_mean, y_std = [], [], [] # store mean, std.
-        lb, avgMx_mean, avgR_prev = 0, 0, None 
-        y_sz = len(y) # no of seeds.
-        while lb < n: 
-            avgR_arr = []
-            for y_indx in range(y_sz):
-                value = y[y_indx][lb]
-                avgR_arr.append(value)
-            avgR = sum(avgR_arr)/y_sz
-            avg_std = math.sqrt(sum([(x-avgR)**2 for x in avgR_arr])/y_sz)
-            avgMx_mean = avgR_prev if avgR_prev and avgR_prev - avgR > smooth_factor else avgR
-            avgR_prev = avgMx_mean
-            xn.append(x[0][lb])
-            y_mean.append(avgMx_mean) 
-            y_std.append(avg_std)
-            lb += 1
-        plt.plot(xn, y_mean, linestyle = '-', label = f'{label_arr[i]}', color = f'{color_arr[i]}')
-        plt.fill_between(xn, (np.array(y_mean)-np.array(y_std)), \
-                            (np.array(y_mean)+np.array(y_std)),\
-                            alpha=.2, color = f'{color_arr[i]}')
-    plt.xlabel('Epochs')
-    plt.ylabel('Cumulative Reward')
-    plt.legend(loc = 'upper left', fontsize = 8)
-    plt.savefig(f'{prefix}TrInstr1{suffix}.png', dpi = image_resolution)
-    plt.show()
+def tr_curve():
+    suffix_arr = ["", "s"]
+    for suffix in suffix_arr:
+        plt.figure(figsize=(10,5))
+        ############## MODEL 0, 1, 2, 3 ############## 
+        for i in range(N_MODELS): # First three models.
+            y, x, n = [], [], 0
+            for j in range(len(seed_arr)):
+                try:
+                    with open(f"{prefix}train_model_d3_{i}{suffix}.json{seed_arr[j]}", "r") as file:
+                        content = file.read()
+                        my_list = ast.literal_eval(content)
+                        n = len(my_list)
+                        y.append([ my_list[i][1] for i in range(n) ])
+                        x.append([ my_list[i][0] for i in range(n) ])
+                except Exception as e:
+                    print(f'{prefix}train_model_d3_{i}{suffix}.json{seed_arr[j]} missing.')
+            xn, y_mean, y_std = [], [], [] # store mean, std.
+            lb, avgMx_mean, avgR_prev = 0, 0, None 
+            y_sz = len(y) # no of seeds.
+            while lb < n: 
+                avgR_arr = []
+                for y_indx in range(y_sz):
+                    value = y[y_indx][lb]
+                    avgR_arr.append(value)
+                avgR = sum(avgR_arr)/y_sz
+                avg_std = math.sqrt(sum([(x-avgR)**2 for x in avgR_arr])/y_sz)
+                avgMx_mean = avgR_prev if avgR_prev and avgR_prev - avgR > smooth_factor else avgR
+                avgR_prev = avgMx_mean
+                xn.append(x[0][lb])
+                y_mean.append(avgMx_mean) 
+                y_std.append(avg_std)
+                lb += 1
+            plt.plot(xn, y_mean, linestyle = '-', label = f'{label_arr[i]}', color = f'{color_arr[i]}')
+            plt.fill_between(xn, (np.array(y_mean)-np.array(y_std)), \
+                                (np.array(y_mean)+np.array(y_std)),\
+                                alpha=.2, color = f'{color_arr[i]}')
+        plt.xlabel('Epochs')
+        plt.ylabel('Cumulative Reward')
+        plt.legend(loc = 'upper left', fontsize = 8)
+        plt.savefig(f'{prefix}TrInstr1{suffix}.png', dpi = image_resolution)
+        plt.show()
 
 
 '''
     Plot 3 digit numbers state vs policy based.
 '''
-def digit3_plot(suffix=""):
+def digit3_plot():
     ''' 
     Train.
     '''
-    plt.figure(figsize=(10,5))
-    ############## MODEL 0, 1, 2, 3 ##############     
-    for i in range(N_MODELS): 
-        color_arr = ["blue", "green", "orange", "purple"]
-        label_arr = ["Model 1: Visual only", "Model 2: Pretrained", "Model 3: Language only", "Model 4: Attention based"]
-        try:
-            x_bin, ytr, ytest = extract_hist(f"{prefix}console_output_digit3_{i}{suffix}", 3, test_type="[FULLTEST]")
-            plt.bar(np.array(x_bin) + i * bar_width, ytr, bar_width, color = color_arr[i], label = label_arr[i])
-            plt.xticks(np.array(x_bin) + bar_width , ("0-99", "100-199", "200-299", "300-399", "400-499", "500-599",
-                                                            "600-699", "700-799", "800-899", "900-999"))        
-        except Exception as e:
-            print(f'{prefix}console_output_digit3_{i}{suffix} missing.')
-    plt.legend(loc="upper left", fontsize=8)
-    plt.xlabel("Upto 3 digit numbers.")
-    plt.ylabel("Average reward.")
-    plt.title("Train Dataset.")
-    plt.savefig(f'{prefix}3Digit{suffix}Train.png', dpi=image_resolution)
-    plt.show()
-    ''' 
-    Test.
-    '''
-    plt.figure(figsize=(10,5))
-    for i in range(N_MODELS):
-        try:
-            x_bin, ytr, ytest = extract_hist(f"{prefix}console_output_digit3_{i}{suffix}", 3, test_type="[FULLTEST]")
-            plt.bar(np.array(x_bin) + i * bar_width, ytest, bar_width, color = color_arr[i], label = label_arr[i])
-            plt.xticks(np.array(x_bin) + bar_width , ("0-99", "100-199", "200-299", "300-399", "400-499", "500-599",
-                                                      "600-699", "700-799", "800-899", "900-999"))
-        except Exception as e:
-            print(f'{prefix}console_output_digit3_{i}{suffix} missing.')
-    plt.legend(loc = "upper left", fontsize=8)
-    plt.xlabel("Upto 3 digit numbers.")
-    plt.ylabel("Average reward.")
-    plt.title("Test Dataset.")
-    plt.savefig(f'{prefix}3Digit{suffix}Test.png', dpi=image_resolution)
-    plt.show()
+    suffix_arr = ["", "s"]
+    for suffix in suffix_arr:
+        plt.figure(figsize=(10,5))
+        ############## MODEL 0, 1, 2, 3 ##############     
+        for i in range(N_MODELS): 
+            color_arr = ["blue", "green", "orange", "purple"]
+            label_arr = ["Model 1: Visual only", "Model 2: Pretrained", "Model 3: Language only", "Model 4: Attention based"]
+            try:
+                x_bin, ytr, ytest = extract_hist(f"{prefix}final_score_d3_{i}{suffix}", 3, test_type="[FULLTEST]")
+                plt.bar(np.array(x_bin) + i * bar_width, ytr, bar_width, color = color_arr[i], label = label_arr[i])
+                plt.xticks(np.array(x_bin) + bar_width , ("0-99", "100-199", "200-299", "300-399", "400-499", "500-599",
+                                                                "600-699", "700-799", "800-899", "900-999"))        
+            except Exception as e:
+                print(f'{prefix}final_score_d3_{i}{suffix} missing.')
+        plt.legend(loc="upper left", fontsize=8)
+        plt.xlabel("Upto 3 digit numbers.")
+        plt.ylabel("Average reward.")
+        plt.title("Train Dataset.")
+        plt.savefig(f'{prefix}3Digit_{suffix}_Train.png', dpi=image_resolution)
+        plt.show()
+        ''' 
+        Test.
+        '''
+        plt.figure(figsize=(10,5))
+        for i in range(N_MODELS):
+            try:
+                x_bin, ytr, ytest = extract_hist(f"{prefix}final_score_d3_{i}{suffix}", 3, test_type="[FULLTEST]")
+                plt.bar(np.array(x_bin) + i * bar_width, ytest, bar_width, color = color_arr[i], label = label_arr[i])
+                plt.xticks(np.array(x_bin) + bar_width , ("0-99", "100-199", "200-299", "300-399", "400-499", "500-599",
+                                                        "600-699", "700-799", "800-899", "900-999"))
+            except Exception as e:
+                print(f'{prefix}final_score_d3_{i}{suffix} missing.')
+        plt.legend(loc = "upper left", fontsize=8)
+        plt.xlabel("Upto 3 digit numbers.")
+        plt.ylabel("Average reward.")
+        plt.title("Test Dataset.")
+        plt.savefig(f'{prefix}3Digit_{suffix}_Test.png', dpi=image_resolution)
+        plt.show()
 
 
 '''
@@ -197,19 +201,19 @@ def state_vs_policy():
     '''
     plt.figure(figsize=(10,5))
     try:
-        x_bin, ytr, ytest = extract_hist(f"{prefix}console_output_digit3_3", 3, test_type="[FULLTEST]")
+        x_bin, ytr, ytest = extract_hist(f"{prefix}final_score_d3_3", 3, test_type="[FULLTEST]")
         plt.bar(np.array(x_bin), ytr, bar_width, color="red", label = "Attention Policy based")
         plt.xticks(np.array(x_bin) + bar_width , ("0-99", "100-199", "200-299", "300-399", "400-499", "500-599",
                                                    "600-699", "700-799", "800-899", "900-999"))
     except Exception as e:
-        print(f'{prefix}console_output_digit3_3 missing.')
+        print(f'{prefix}final_score_d3_3 missing.')
     try:
-        x_bin, ytr, ytest = extract_hist(f"{prefix}console_output_digit3_3_sr", 3, test_type="[FULLTEST]")
+        x_bin, ytr, ytest = extract_hist(f"{prefix}final_score_d3_3_s", 3, test_type="[FULLTEST]")
         plt.bar(np.array(x_bin) + bar_width, ytr, bar_width, color="blue", label = "Attention State based")
         plt.xticks(np.array(x_bin) + bar_width , ("0-99", "100-199", "200-299", "300-399", "400-499", "500-599",
                                                    "600-699", "700-799", "800-899", "900-999"))
     except Exception as e:
-        print(f'{prefix}console_output_digit3_3_sr missing.')
+        print(f'{prefix}final_score_d3_3_s missing.')
     plt.legend(fontsize=8)
     plt.xlabel("Upto 3 digit numbers.")
     plt.ylabel("Average reward.")
@@ -221,20 +225,20 @@ def state_vs_policy():
     '''
     plt.figure(figsize=(10,5))
     try:
-        x_bin, ytr, ytest = extract_hist(f"{prefix}console_output_digit3_3", 3, test_type="[FULLTEST]")
+        x_bin, ytr, ytest = extract_hist(f"{prefix}final_score_d3_3", 3, test_type="[FULLTEST]")
         plt.bar(np.array(x_bin), ytest, bar_width, color="red", label = "Attention Policy based")
         plt.xticks(np.array(x_bin) + bar_width , ("0-99", "100-199", "200-299", "300-399", "400-499", "500-599",
               
                                                    "600-699", "700-799", "800-899", "900-999"))
     except Exception as e:
-        print(f'{prefix}console_output_digit3_3 missing.')
+        print(f'{prefix}final_score_d3_3 missing.')
     try:
-        x_bin, ytr, ytest = extract_hist(f"{prefix}console_output_digit3_3_sr", 3, test_type="[FULLTEST]")
+        x_bin, ytr, ytest = extract_hist(f"{prefix}final_score_d3_3_s", 3, test_type="[FULLTEST]")
         plt.bar(np.array(x_bin) + bar_width, ytest, bar_width, color="blue", label = "Attention State based")
         plt.xticks(np.array(x_bin) + bar_width , ("0-99", "100-199", "200-299", "300-399", "400-499", "500-599",
                                                    "600-699", "700-799", "800-899", "900-999"))
     except Exception as e:
-        print(f'{prefix}console_output_digit3_3_sr missing.')
+        print(f'{prefix}final_score_d3_3_s missing.')
     plt.legend(fontsize=8)
     plt.xlabel("Upto 3 digit numbers.")
     plt.ylabel("Average reward.")
@@ -247,8 +251,6 @@ def state_vs_policy():
     Driver Function.
 '''
 if __name__ == '__main__':
-    option = "s" if sys.argv[1] == "state" else ""
-    tr_curve(option)
-    option = "_sr" if sys.argv[1] == "state" else ""
-    digit3_plot(option)
+    tr_curve()
+    digit3_plot()
     state_vs_policy()

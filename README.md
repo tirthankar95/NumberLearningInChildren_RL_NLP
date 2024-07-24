@@ -22,17 +22,16 @@
 5. Run from the main directory ~ **python3 -W ignore RL_Algorithm/PPO/ppo_post_run.py &**. This is used to generate results after the model has been trained.
 
 **Analysis**
-1. You can generate your own code for custom analysis. To reproduce our results copy `Results/final_score.txt` and `Results/reward_list_*` to **Analysis** folder. 
-2. Rename `final_score.txt` as `console_output_digit{x}_{y}{z1}` and `reward_list_*` as `train_model{y}_d{x}{z2}.txt{a}`
-
-Where, <br />
-{a} -> {"", "seed_0", "seed_1", ... } <br />
-{x} -> no of digits: {1, 2, 3} <br />
-{y} -> model number: {0, 1, 2, 3} <br />
-{z1}-> {"sate": "s", "policy":""} <br />
-{z2}-> {"state": "s", "policy":""} <br />
-
-For example:-
-final_score.txt will change to console_output_digit3_3 if 3 digit numbers are present, if the model id is 3 and if instruction type is "policy". 
+1. You can generate your own code for custom analysis. To reproduce our results copy `Results/final_score_*` and `Results/train_model_*` to **Analysis** folder. 
+2. Append {a} to `train_model_*.json{a}` in Analysis folder.
+   Where, <br />
+   {a} -> {"", "seed_0", "seed_1", ... } <br />
+   <!--{x} -> no of digits: {1, 2, 3} <br />
+   {y} -> model number: {0, 1, 2, 3} <br />
+   {z} -> {"sate": "s", "policy":""} <br />  -->
  
-3. Run **python3 Plot_redx.py policy** or **python3 Plot_redx.py state** inside the container based on whether instruction type is `(policy/state)`.
+3. Run **python3 Plot_redx.py** inside the container.
+4. To create consolidated graphs modify **train_config.json** and **test_config.json**, by trying out all the combinations below.  
+model number $\epsilon$ {0, 1, 2, 3}<br />
+instr_type $\epsilon$ {0, 1}<br />
+Do step 1. & 2.
