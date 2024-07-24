@@ -34,4 +34,4 @@
 4. To create consolidated graphs modify **train_config.json** and **test_config.json**, by trying out all the combinations below.  
 model number $\epsilon$ {0, 1, 2, 3}<br />
 instr_type $\epsilon$ {0, 1}<br />
-Do step 1. & 2.
+And then do step 1 & 2, after dumping all the necessary files in the Analysis folder.
