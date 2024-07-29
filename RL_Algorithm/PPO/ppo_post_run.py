@@ -3,17 +3,17 @@ import os
 # Add all modules.
 sys.path.append(f'{os.getcwd()}')
 sys.path.append(f'{os.getcwd()}/NN_Model')
-sys.path.append(f'{os.getcwd()}/gym-examples')
+sys.path.append(f'{os.getcwd()}/RL_Environment')
+
 import json 
 import logging 
+from rl_nlp_world import *
 import utils as U
 import model_cnn as M
 import model_nlp as MNLP
 import model_attention as M_Attn
 import torch 
 import matplotlib.pyplot as plt 
-import gym 
-import gym_examples
 import copy
 import model_simple as M_Simp
 
@@ -51,7 +51,7 @@ def run_agent(number,opt):
         return action.cpu().numpy().item()
     dbg=False
     episodes=1
-    env = gym.make('gym_examples/RlNlpWorld-v0',render_mode="rgb_array", instr_type = instr_type)
+    env = RlNlpWorld(render_mode="rgb_array", instr_type = instr_type)
     actionArr, rewardArr = [],[]
     for _ in range(episodes):
         cumulative_reward,steps=0,0

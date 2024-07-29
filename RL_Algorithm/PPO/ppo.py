@@ -3,11 +3,12 @@ import os
 # Add all modules.
 sys.path.append(f'{os.getcwd()}')
 sys.path.append(f'{os.getcwd()}/NN_Model')
-sys.path.append(f'{os.getcwd()}/gym-examples')
+sys.path.append(f'{os.getcwd()}/RL_Environment')
 
 import numpy as np 
 np.random.seed(seed = 2023)
 import time
+from rl_nlp_world import *
 import utils as U
 import model_cnn as M
 import model_nlp as MNLP
@@ -19,8 +20,6 @@ import torch.nn.functional as F
 import torch.optim as optim
 import json
 import copy
-import gym 
-import gym_examples
 import time
 import logging 
 
@@ -189,7 +188,7 @@ if __name__=='__main__':
     '''
     FOR NEW TYPE OF INSTRUCTION (END)
     '''
-    env = gym.make('gym_examples/RlNlpWorld-v0',render_mode="rgb_array", instr_type = instr_type)
+    env = RlNlpWorld(render_mode="rgb_array", instr_type = instr_type)
     # max_advantage = 20
     # Neural Network Hyper params:
     lr               = 1e-5
