@@ -106,10 +106,10 @@ if __name__=='__main__':
     '''
     with open('Configs/test_path.json','r') as file:
         paths = json.load(file)
-    for key,value in paths.items(): 
+    for key, value in paths.items(): 
         if key != models_to_test[args["model"]][args["ease"]]: continue
         LOG.info(f'TEST NAME {key}')
-        # plot_ppo(value["train_result_plot"],value["output_path"])
+        # plot_ppo(f"train_model_d3_{args["model"]}{"" if args["instr_type"] == 0 else "s"}.json",value["output_path"])
         '''
             See Results.
         '''
@@ -125,14 +125,13 @@ if __name__=='__main__':
             model = M_Attn.NNAttention(img_shape).to(device)
 
         model.load_state_dict(torch.load(f'{value["model"]["path"]}'))
-        
         # TRAIN
-        train_set, train_dict, avg_cum = [1],{},0
+        train_set, train_dict, avg_cum = [1], {}, 0
         if len(value["train_set"]) != 0:
             with open(f'{value["train_set"]}','r') as file_tr:
                 train_set = json.load(file_tr)
         for no in train_set:
-            train_dict[no] = run_agent(no,value["model"]["type"]) #Call function {action, reward,cumulative reward}
+            train_dict[no] = run_agent(no,value["model"]["type"]) # Call function {action, reward,cumulative reward}
             avg_cum += train_dict[no]["cumulative_reward"]
             LOG.info(f'[TRAIN] No[{no}] ~ Reward[{train_dict[no]["cumulative_reward"]}]')
         LOG.info(f'[IMP] train {avg_cum/len(train_set)}')

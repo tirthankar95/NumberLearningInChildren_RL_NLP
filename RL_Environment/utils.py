@@ -121,9 +121,9 @@ def gen_data_level_based(opt, args):
         return res 
     valid=[]
     for i in range(1,1000):
-        if opt==0 and sum_digits(i)<=15:
+        if opt==0 and sum_digits(i)<=10:#15
             valid.append(i)
-        elif opt==1 and sum_digits(i)<=20:
+        elif opt==1 and sum_digits(i)<=15:#20
             valid.append(i)
         elif opt==2 and sum_digits(i)<=25:
             valid.append(i)

@@ -6,7 +6,6 @@
 		},
 		"train_set": [],
 		"test_set": [],
-		"train_result_plot": "Results/reward_list_naive.json",
 		"output_path": "Results"
 	},
 	"model_fnlp_naive":{
@@ -16,7 +15,6 @@
 		},
 		"train_set": [], 
 		"test_set": [], 
-		"train_result_plot": "Results/reward_list_fnlp_naive.json",
 		"output_path": "Results"
 	},
 	"model_easy":{
@@ -26,7 +24,15 @@
 		},
 		"train_set": "Results/train_seteasy.json", 
 		"test_set": "Results/test_seteasy.json", 
-		"train_result_plot": "Results/reward_list_easy.json",
+		"output_path": "Results"
+	},
+	"model_easy_stateInstr":{
+		"model":{
+			"type": 0,
+			"path": "Results/model_easy_stateInstr.ml"
+		},
+		"train_set": "Results/train_seteasy.json", 
+		"test_set": "Results/test_seteasy.json", 
 		"output_path": "Results"
 	},
 	"model_fnlp_easy":{
@@ -36,7 +42,6 @@
 		},
 		"train_set": "Results/train_setfnlp_easy.json", 
 		"test_set": "Results/test_setfnlp_easy.json", 
-		"train_result_plot": "Results/reward_list_fnlp_easy.json",
 		"output_path": "Results"
 	},
 	"model_fnlp_naive_stateInstr":{
@@ -46,7 +51,6 @@
 		},
 		"train_set": "Results/train_setfnlp_naive.json", 
 		"test_set": "Results/test_setfnlp_naive.json", 
-		"train_result_plot": "Results/reward_list_fnlp_naive_stateInstr.json",
 		"output_path": "Results"
 	},
 	"model_fnlp_easy_stateInstr":{
@@ -56,7 +60,6 @@
 		},
 		"train_set": "Results/train_setfnlp_easy.json", 
 		"test_set": "Results/test_setfnlp_easy.json", 
-		"train_result_plot": "Results/reward_list_fnlp_easy_stateInstr.json",
 		"output_path": "Results"
 	},
 	"model_onlp_naive_stateInstr":{
@@ -66,7 +69,6 @@
 		},
 		"train_set": [], 
 		"test_set": [], 
-		"train_result_plot": "Results/reward_list_onlp_naive_stateInstr.json",
 		"output_path": "Results"
 	},
 	"model_onlp_easy_stateInstr":{
@@ -76,7 +78,6 @@
 			},
 			"train_set": "Results/train_setonlp_easy.json",
 			"test_set": "Results/test_setonlp_easy.json",
-			"train_result_plot": "Results/reward_list_onlp_easy_stateInstr.json",
 			"output_path": "Results"
 	},
     "model_onlp_easy":{
@@ -86,7 +87,6 @@
             },
             "train_set": "Results/train_setonlp_easy.json",
             "test_set": "Results/test_setonlp_easy.json",
-            "train_result_plot": "Results/reward_list_onlp_easy.json",
             "output_path": "Results"
     },
 	"model_anlp_easy_stateInstr":{
@@ -96,7 +96,6 @@
 			},
 			"train_set": "Results/train_setanlp_easy.json",
 			"test_set": "Results/test_setanlp_easy.json",
-			"train_result_plot": "Results/reward_list_anlp_easy_stateInstr.json",
 			"output_path": "Results"
 	},
 	"model_anlp_easy":{
@@ -106,7 +105,6 @@
 		},
 		"train_set": "Results/train_setanlp_easy.json",
 		"test_set": "Results/test_setanlp_easy.json",
-		"train_result_plot": "Results/reward_list_anlp_easy.json",
 		"output_path": "Results"
 	},
 	"model_anlp_naive_stateInstr":{
@@ -116,7 +114,6 @@
 		},
 		"train_set": "Results/train_setanlp_naive.json",
 		"test_set": "Results/test_setanlp_naive.json",
-		"train_result_plot": "Results/reward_list_anlp_naive_stateInstr.json",
 		"output_path": "Results"
 	},
 	"model_anlp_naive":{
@@ -126,7 +123,6 @@
 		},
 		"train_set": "Results/train_setanlp_naive.json",
 		"test_set": "Results/test_setanlp_naive.json",
-		"train_result_plot": "Results/reward_list_anlp_naive_stateInstr.json",
 		"output_path": "Results"
 	}
 }

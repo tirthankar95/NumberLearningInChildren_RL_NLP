@@ -161,7 +161,7 @@ def digit3_plot():
                 x_bin, ytr, ytest = extract_hist(f"{prefix}final_score_d3_{i}{suffix}", 3, test_type="[FULLTEST]")
                 plt.bar(np.array(x_bin) + i * bar_width, ytr, bar_width, color = color_arr[i], label = label_arr[i])
                 plt.xticks(np.array(x_bin) + bar_width , ("0-99", "100-199", "200-299", "300-399", "400-499", "500-599",
-                                                                "600-699", "700-799", "800-899", "900-999"))        
+                                                          "600-699", "700-799", "800-899", "900-999"))        
             except Exception as e:
                 print(f'{prefix}final_score_d3_{i}{suffix} missing.')
         plt.legend(loc="upper left", fontsize=8)
@@ -179,7 +179,7 @@ def digit3_plot():
                 x_bin, ytr, ytest = extract_hist(f"{prefix}final_score_d3_{i}{suffix}", 3, test_type="[FULLTEST]")
                 plt.bar(np.array(x_bin) + i * bar_width, ytest, bar_width, color = color_arr[i], label = label_arr[i])
                 plt.xticks(np.array(x_bin) + bar_width , ("0-99", "100-199", "200-299", "300-399", "400-499", "500-599",
-                                                        "600-699", "700-799", "800-899", "900-999"))
+                                                          "600-699", "700-799", "800-899", "900-999"))
             except Exception as e:
                 print(f'{prefix}final_score_d3_{i}{suffix} missing.')
         plt.legend(loc = "upper left", fontsize=8)
@@ -208,12 +208,12 @@ def state_vs_policy():
     except Exception as e:
         print(f'{prefix}final_score_d3_3 missing.')
     try:
-        x_bin, ytr, ytest = extract_hist(f"{prefix}final_score_d3_3_s", 3, test_type="[FULLTEST]")
+        x_bin, ytr, ytest = extract_hist(f"{prefix}final_score_d3_3s", 3, test_type="[FULLTEST]")
         plt.bar(np.array(x_bin) + bar_width, ytr, bar_width, color="blue", label = "Attention State based")
         plt.xticks(np.array(x_bin) + bar_width , ("0-99", "100-199", "200-299", "300-399", "400-499", "500-599",
                                                    "600-699", "700-799", "800-899", "900-999"))
     except Exception as e:
-        print(f'{prefix}final_score_d3_3_s missing.')
+        print(f'{prefix}final_score_d3_3s missing.')
     plt.legend(fontsize=8)
     plt.xlabel("Upto 3 digit numbers.")
     plt.ylabel("Average reward.")
@@ -228,17 +228,16 @@ def state_vs_policy():
         x_bin, ytr, ytest = extract_hist(f"{prefix}final_score_d3_3", 3, test_type="[FULLTEST]")
         plt.bar(np.array(x_bin), ytest, bar_width, color="red", label = "Attention Policy based")
         plt.xticks(np.array(x_bin) + bar_width , ("0-99", "100-199", "200-299", "300-399", "400-499", "500-599",
-              
-                                                   "600-699", "700-799", "800-899", "900-999"))
+                                                  "600-699", "700-799", "800-899", "900-999"))
     except Exception as e:
         print(f'{prefix}final_score_d3_3 missing.')
     try:
-        x_bin, ytr, ytest = extract_hist(f"{prefix}final_score_d3_3_s", 3, test_type="[FULLTEST]")
+        x_bin, ytr, ytest = extract_hist(f"{prefix}final_score_d3_3s", 3, test_type="[FULLTEST]")
         plt.bar(np.array(x_bin) + bar_width, ytest, bar_width, color="blue", label = "Attention State based")
         plt.xticks(np.array(x_bin) + bar_width , ("0-99", "100-199", "200-299", "300-399", "400-499", "500-599",
-                                                   "600-699", "700-799", "800-899", "900-999"))
+                                                  "600-699", "700-799", "800-899", "900-999"))
     except Exception as e:
-        print(f'{prefix}final_score_d3_3_s missing.')
+        print(f'{prefix}final_score_d3_3s missing.')
     plt.legend(fontsize=8)
     plt.xlabel("Upto 3 digit numbers.")
     plt.ylabel("Average reward.")
