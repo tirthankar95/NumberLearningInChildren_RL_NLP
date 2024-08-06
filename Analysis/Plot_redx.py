@@ -17,7 +17,7 @@ prefix = ""
 label_arr = ['Model 1: Visual only', 'Model 2: Pretrained', 'Model 3: Language only', 'Model 4: Attention based']
 color_arr = ["blue", "green", "orange", "purple"]
 seed_arr = ["", "_seed1", "_seed2"]
-smooth_factor = 0.5
+smooth_factor = 1.0
 
 '''
     Extract reward from final_score*
