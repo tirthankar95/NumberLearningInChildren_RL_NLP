@@ -107,7 +107,7 @@ if __name__=='__main__':
     with open('Configs/test_path.json','r') as file:
         paths = json.load(file)
     for key, value in paths.items(): 
-        if key != models_to_test[args["model"]][args["ease"]]: continue
+        if key != models_to_test[args["model"]][args["order"]]: continue
         LOG.info(f'TEST NAME {key}')
         # plot_ppo(f"train_model_d3_{args["model"]}{"" if args["instr_type"] == 0 else "s"}.json",value["output_path"])
         '''

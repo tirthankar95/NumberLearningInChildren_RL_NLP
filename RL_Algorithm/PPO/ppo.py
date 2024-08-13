@@ -28,9 +28,9 @@ curr_number = -1
 def RESETS(envs, noX = None, override=True):
     global train_set_counter, train_set, args, curr_number
     if not override:
-        temp = noX if args["ease"]>=0 else 1
+        temp = noX if args["order"]>=0 else 1
         envs.reset(set_no = temp)
-    set_number=train_set[train_set_counter] if args["ease"]>=0 else 1
+    set_number=train_set[train_set_counter] if args["order"]>=0 else 1
     if episodeNo % time_to_learn == 0: #increment only if time to learn has passed.
         if train_set_counter>=len(train_set)-1:
             train_set_counter=0
@@ -173,7 +173,7 @@ if __name__=='__main__':
     max_episodes = max(scale_tr*time_to_learn*len(train_set),args["iter"])
     LOG.info(f'Number of Episodes Tr[{len(train_set)}]*{time_to_learn} = {max_episodes}')
     max_steps_per_episode_list=[40,50,64,5] # my_estimation
-    max_steps_per_episode = max_steps_per_episode_list[args["ease"]]
+    max_steps_per_episode = max_steps_per_episode_list[args["order"]]
     max_frames = max_episodes * max_steps_per_episode
     frame_idx = 0
     early_stopping = False
@@ -204,6 +204,14 @@ if __name__=='__main__':
         img_shape = (3, 224, 224)
         model = M_Attn.NNAttention(img_shape).to(device)
 
+    try:
+        with open('Configs/test_path.json','r') as file:
+            paths = json.load(file)
+        model_name = f"model_{suffix[args["model"]][args["order"]]}"
+        model.load_state_dict(torch.load(paths[model_name]["model"]["paths"]))
+    except:
+        LOG.warning(f'There is no model to load.')
+    
     threshold_reward = env.threshold_reward
     optimizer = optim.Adam(model.parameters(), lr=lr)
     test_rewards = []
@@ -302,7 +310,7 @@ if __name__=='__main__':
                 if test_reward > threshold_reward: early_stop = True
             if frame_idx % 50000 == 0:
                 LOG.info(f'Saving Model ...')
-                torch.save(model.state_dict(),f'Results/model_{suffix[args["model"]][args["ease"]]}.ml')
+                torch.save(model.state_dict(),f'Results/model_{suffix[args["model"]][args["order"]]}.ml')
             frame_idx += 1
             if done: 
                 if reward == 1:
@@ -332,5 +340,5 @@ if __name__=='__main__':
                 ppo_epochs += 2
                 dict[curr_number] = len(actionsArr)
         ppo_update(model, optimizer, ppo_epochs, mini_batch_size, statesArr, statesNlpArr, actionsArr, log_probsArr, returns, advantage)
-    torch.save(model.state_dict(),f'Results/model_{suffix[args["model"]][args["ease"]]}.ml')
+    torch.save(model.state_dict(),f'Results/model_{suffix[args["model"]][args["order"]]}.ml')
 

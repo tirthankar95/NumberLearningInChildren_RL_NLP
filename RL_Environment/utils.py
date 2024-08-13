@@ -90,10 +90,10 @@ def pre_process_text(model,state):
     
 def gen_data(args): 
     train, test = None, None
-    if args["ease"] < 0: 
+    if args["order"] < 0: 
         train, test = [1]*5, [1]*5
-    elif args["order"] < 3: # RANDOM ORDER but sorted in ease of difficulty.
-        train, test = gen_data_level_based(args["ease"], args)
+    elif args["order"] < 3: # RANDOM ORDER but sorted in order of difficulty.
+        train, test = gen_data_level_based(args["order"], args)
     elif args["order"] == 3:
         train, test = gen_data_natural(args)
     elif args["order"] == 4:
@@ -104,9 +104,9 @@ def gen_data(args):
         train, test = make_own_rand(args)
     elif args["order"] == 1010:
         train, test = make_task_sanity(args)
-    with open(f'Results/train_set{suffix[args["model"]][args["ease"]]}.json', 'w') as file:
+    with open(f'Results/train_set{suffix[args["model"]][args["order"]]}.json', 'w') as file:
         json.dump(train, file)
-    with open(f'Results/test_set{suffix[args["model"]][args["ease"]]}.json', 'w') as file:
+    with open(f'Results/test_set{suffix[args["model"]][args["order"]]}.json', 'w') as file:
         json.dump(test, file)
     return train, test
 
