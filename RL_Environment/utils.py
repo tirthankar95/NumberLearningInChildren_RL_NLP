@@ -91,7 +91,7 @@ def pre_process_text(model,state):
 def gen_data(args): 
     train, test = None, None
     if args["order"] < 0: 
-        train, test = [1]*5, [1]*5
+        train, test = [111], [111]
     elif args["order"] < 3: # RANDOM ORDER but sorted in order of difficulty.
         train, test = gen_data_level_based(args["order"], args)
     elif args["order"] == 3:
