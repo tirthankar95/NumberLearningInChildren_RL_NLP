@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt 
 import pygame 
+import os
 
 '''
 Global Variables.
@@ -182,6 +183,7 @@ def draw_main(render_mode,fps,no):
     constructArrElement=[[] for _ in range(MX_NO_OF_DIGITS)]
     carry_indicator = False
     FPS,rm=fps,render_mode
+    os.environ["SDL_AUDIODRIVER"] = "dummy"
     pygame.init()
     if rm=='human':
         WIN = pygame.display.set_mode((WIDTH, HEIGHT))

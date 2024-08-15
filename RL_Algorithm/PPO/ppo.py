@@ -1,6 +1,5 @@
 import sys 
 import os
-import gc
 # Add all modules.
 sys.path.append(f'{os.getcwd()}')
 sys.path.append(f'{os.getcwd()}/NN_Model')
@@ -338,6 +337,4 @@ if __name__=='__main__':
                 ppo_epochs += 2
                 dict[curr_number] = len(actionsArr)
         ppo_update(model, optimizer, ppo_epochs, mini_batch_size, statesArr, statesNlpArr, actionsArr, log_probsArr, returns, advantage)
-    gc.collect()
     torch.save(model.state_dict(),f'Results/model_{suffix[args["model"]][args["order"]]}.ml')
-
