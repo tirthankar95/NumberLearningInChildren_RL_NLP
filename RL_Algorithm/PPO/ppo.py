@@ -1,5 +1,6 @@
 import sys 
 import os
+import gc
 # Add all modules.
 sys.path.append(f'{os.getcwd()}')
 sys.path.append(f'{os.getcwd()}/NN_Model')
@@ -203,15 +204,13 @@ if __name__=='__main__':
     elif args["model"] == 3:
         img_shape = (3, 224, 224)
         model = M_Attn.NNAttention(img_shape).to(device)
-
     try:
         with open('Configs/test_path.json','r') as file:
             paths = json.load(file)
-        model_name = f"model_{suffix[args["model"]][args["order"]]}"
-        model.load_state_dict(torch.load(paths[model_name]["model"]["paths"]))
+        model_name = "model_" + suffix[args["model"]][args["order"]]
+        model.load_state_dict(torch.load(paths[model_name]["model"]["path"]))
     except:
-        LOG.warning(f'There is no model to load.')
-    
+        LOG.warning(f'There is no model to load.') 
     threshold_reward = env.threshold_reward
     optimizer = optim.Adam(model.parameters(), lr=lr)
     test_rewards = []
@@ -309,7 +308,7 @@ if __name__=='__main__':
                     json.dump(test_rewards, file)
                 if test_reward > threshold_reward: early_stop = True
             if frame_idx % 50000 == 0:
-                LOG.info(f'Saving Model ...')
+                LOG.warning(f'Saving Model ...')
                 torch.save(model.state_dict(),f'Results/model_{suffix[args["model"]][args["order"]]}.ml')
             frame_idx += 1
             if done: 
@@ -325,7 +324,6 @@ if __name__=='__main__':
         elif args["model"] == 3:
             _, next_value = model(next_state["visual"],next_state['text'])
         returns = compute_gae(next_value, rewardsArr, masksArr, valuesArr)
-
         returns   = torch.cat(returns).detach()
         log_probsArr = torch.cat(log_probsArr).detach()
         valuesArr    = torch.cat(valuesArr).detach()
@@ -340,5 +338,6 @@ if __name__=='__main__':
                 ppo_epochs += 2
                 dict[curr_number] = len(actionsArr)
         ppo_update(model, optimizer, ppo_epochs, mini_batch_size, statesArr, statesNlpArr, actionsArr, log_probsArr, returns, advantage)
+    gc.collect()
     torch.save(model.state_dict(),f'Results/model_{suffix[args["model"]][args["order"]]}.ml')
 
