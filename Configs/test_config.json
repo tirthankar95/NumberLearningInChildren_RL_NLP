@@ -1,6 +1,6 @@
 {
     "model": 3,
-    "ease": 0,
+    "order": 0,
     "instr_type": 0,
     "log": 20,
     "full_test": 1,
