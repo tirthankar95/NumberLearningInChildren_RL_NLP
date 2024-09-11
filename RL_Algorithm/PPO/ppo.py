@@ -11,8 +11,8 @@ import time
 from rl_nlp_world import *
 import utils as U
 import model_cnn as M
-import model_nlp as MNLP
-import model_simple as M_Simp
+import model_nlp_cnn as MNLP
+import model_nlp as M_Simp
 import model_attention as M_Attn
 import torch 
 import torch.nn as nn
@@ -21,22 +21,22 @@ import torch.optim as optim
 import json
 import copy
 import time
+import math
 import logging 
 
 
-curr_number = -1
-def RESETS(envs, noX = None, override=True):
-    global train_set_counter, train_set, args, curr_number
-    if not override:
-        temp = noX if args["order"]>=0 else 1
-        envs.reset(set_no = temp)
-    set_number=train_set[train_set_counter] if args["order"]>=0 else 1
-    if episodeNo % time_to_learn == 0: #increment only if time to learn has passed.
-        if train_set_counter>=len(train_set)-1:
-            train_set_counter=0
-        train_set_counter += 1
-    curr_number = set_number
-    return envs.reset(set_no=set_number)
+def RESETS(envs, noX = None, override = False):
+    global no_count, rank_train
+    if override: return envs.reset(set_no = noX)
+    # UCB
+    c = 2.5
+    no_count += 1
+    for idx, sample in enumerate(rank_train):
+        rank, reward, exploration, no = sample
+        rank_train[idx][0] = reward - c * math.sqrt(math.log(no_count)/exploration)
+    rank_train.sort()
+    rank_train[0][2] += 1
+    return envs.reset(set_no = rank_train[0][-1])
 
 
 def STEPS(envs,action):
@@ -117,11 +117,11 @@ def compute_gae(next_value, rewards, masks, values, gamma=0.99, tau=0.95):
         returns.insert(0, gae + values[step])
     return returns
 
-def test_env(model):
+def test_env_with_trainset(model):
     global max_steps_per_episode, device 
     cum_reward=0
     for no in train_set:
-        state = RESETS(env, noX = no, override=False)
+        state = RESETS(env, noX = no, override = True)
         state["visual"] = U.pre_process(state)
         if args["model"] == 1:
             state["text"] = U.pre_process_text(model,state)
@@ -166,12 +166,11 @@ if __name__=='__main__':
     logging.basicConfig(level = args["log"], format='%(asctime)3s - %(filename)s:%(lineno)d - %(message)s')
     LOG = logging.getLogger(__name__)
     LOG.warning(f'Params: {args}')
-    train_set,test_set=U.gen_data(args)
-    train_set_counter=0
+    train_set, eval_set = U.gen_data(args)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    time_to_learn, scale_tr = 10, 50
-    max_episodes = max(scale_tr*time_to_learn*len(train_set),args["iter"])
-    LOG.info(f'Number of Episodes Tr[{len(train_set)}]*{time_to_learn} = {max_episodes}')
+    scale_tr, rank_train = 10, [[0, 0, 1, no] for no in train_set] # [Total_rank, Reward, No_of_times_encountered, no]
+    no_count = 0
+    max_episodes = max(scale_tr * len(train_set), args["iter"])
     max_steps_per_episode_list=[40,50,64,5] # my_estimation
     max_steps_per_episode = max_steps_per_episode_list[args["order"]]
     max_frames = max_episodes * max_steps_per_episode
@@ -191,7 +190,7 @@ if __name__=='__main__':
     env = RlNlpWorld(render_mode="rgb_array", instr_type = instr_type)
     # max_advantage = 20
     # Neural Network Hyper params:
-    lr               = 1e-5
+    lr               = 1e-4
     mini_batch_size  = 1
     ppo_epochs       = 1
     if args["model"] == 0: # Naive model
@@ -301,7 +300,7 @@ if __name__=='__main__':
             if frame_idx % 5000 == 0:
                 LOG.warning(f'Discovery {action_dict}, {reward_dict}')
             if frame_idx % 50000 == 0:
-                test_reward = np.mean([test_env(model) for _ in range(1)])
+                test_reward = np.mean([test_env_with_trainset(model) for _ in range(1)])
                 test_rewards.append([frame_idx,test_reward])
                 with open(f'Results/train_model_d3_{args["model"]}{"" if args["instr_type"] == 0 else "s"}.json', 'w') as file:
                     json.dump(test_rewards, file)
@@ -314,6 +313,11 @@ if __name__=='__main__':
                 if reward == 1:
                     completed = True 
                 break
+        
+        with torch.no_grad():
+            temp_var = torch.tensor(rewardsArr).squeeze()
+            rank_train[0][1] = temp_var.mean().item()
+        
         if args["model"] == 0:
             _, next_value = model(next_state["visual"])
         elif args["model"] == 1:
@@ -332,9 +336,6 @@ if __name__=='__main__':
             statesNlpArr = torch.cat(statesNlpArr)
         actionsArr   = torch.cat(actionsArr)
         advantage = returns - valuesArr
-        if instr_type == "state":
-            if curr_number in dict and completed and dict[curr_number] > len(actionsArr):
-                ppo_epochs += 2
-                dict[curr_number] = len(actionsArr)
         ppo_update(model, optimizer, ppo_epochs, mini_batch_size, statesArr, statesNlpArr, actionsArr, log_probsArr, returns, advantage)
+    
     torch.save(model.state_dict(),f'Results/model_{suffix[args["model"]][args["order"]]}.ml')

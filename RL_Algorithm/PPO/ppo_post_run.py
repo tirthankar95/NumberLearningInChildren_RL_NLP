@@ -10,12 +10,12 @@ import logging
 from rl_nlp_world import *
 import utils as U
 import model_cnn as M
-import model_nlp as MNLP
+import model_nlp_cnn as MNLP
 import model_attention as M_Attn
 import torch 
 import matplotlib.pyplot as plt 
 import copy
-import model_simple as M_Simp
+import model_nlp as M_Simp
 
 LOG = None 
 def create_result_file(y: int, z: str):
@@ -123,7 +123,6 @@ if __name__=='__main__':
         elif value["model"]["type"] == 3:
             img_shape = (3, 224, 224)
             model = M_Attn.NNAttention(img_shape).to(device)
-
         model.load_state_dict(torch.load(f'{value["model"]["path"]}'))
         # TRAIN
         train_set, train_dict, avg_cum = [1], {}, 0

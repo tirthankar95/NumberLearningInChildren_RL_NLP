@@ -53,7 +53,6 @@ class CreateInstructions:
     Policy based instructions
     ''' 
     def create_nlp_policy(self):
-        global spell
         instructions = []
         exp_actions = []
         word_name,hun,ten,uni = self.get_word_name(self.no)

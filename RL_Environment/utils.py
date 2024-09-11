@@ -83,7 +83,7 @@ def pre_process(state):
     state["visual"]=torch.unsqueeze(temp_vis,dim=0)
     return state["visual"]
 
-def pre_process_text(model,state):
+def pre_process_text(model, state):
     TEXT = state["text"]+" [PAD]"*model.mxSentenceLength 
     text = model.tokenizer(TEXT,padding=True,truncation=True,max_length=model.mxSentenceLength,return_tensors="pt")
     return text 
