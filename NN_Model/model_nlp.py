@@ -2,10 +2,33 @@ import torch
 import torch.nn as nn 
 import numpy as np
 from torch.distributions import Categorical 
+import model_strategy_if as MS 
+# FROM NLTK, download takes lot of time.
+stopwords = [
+    'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', "you're", \
+    "you've", "you'll", "you'd", 'your', 'yours', 'yourself', 'yourselves', 'he', \
+    'him', 'his', 'himself', 'she', "she's", 'her', 'hers', 'herself', 'it', "it's", \
+    'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', \
+    'which', 'who', 'whom', 'this', 'that', "that'll", 'these', 'those', 'am', \
+    'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', \
+    'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', \
+    'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', \
+    'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', \
+    'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', \
+    'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', \
+    'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', \
+    'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', \
+    "don't", 'should', "should've", 'now', 'd', 'll', 'm', 'o', 're', 've', 'y', 'ain', \
+    'aren', "aren't", 'couldn', "couldn't", 'didn', "didn't", 'doesn', "doesn't", 'hadn', \
+    "hadn't", 'hasn', "hasn't", 'haven', "haven't", 'isn', "isn't", 'ma', 'mightn', \
+    "mightn't", 'mustn', "mustn't", 'needn', "needn't", 'shan', "shan't", 'shouldn', \
+    "shouldn't", 'wasn', "wasn't", 'weren', "weren't", 'won', "won't", 'wouldn', "wouldn't"
+]
 
-class NN_Simple(nn.Module):
+class NN_Simple(MS.NN_Strategy):
     def __init__(self):
         super().__init__()
+        self.punctuations = ['.', ',', '!', '?', '*']
         self.mxSentenceLength, self.noOfActions= 32, 6
         self.fc = nn.Sequential( nn.Linear(self.mxSentenceLength, 1024),
                                  nn.ReLU(),
@@ -25,11 +48,11 @@ class NN_Simple(nn.Module):
                                         nn.Linear(32, 1)
         )
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.freq_words = ['this', 'the', 'is', 'are', 'you', 'our', 'in']
         self.token_dict = {}; self.token_dict['[PAD]'] = 0
         self.token_cnt = 1
     
-    def pre_process(self, xs):
+    def pre_process(self, state):
+        xs = [state["text"]]
         n = len(xs)
         sen_arr = [[] for i in range(n)]
         for id_out, x in enumerate(xs):
@@ -37,7 +60,13 @@ class NN_Simple(nn.Module):
             new_sen_x = []
             # Tokenize & remove useless words.
             for id, word in enumerate(sen_x):
-                if word in self.freq_words: continue 
+                word = word.lower()
+                if word in stopwords: continue
+                if word in self.punctuations: continue
+                elif word[-1] == '.' or word[-1] == ',':
+                    word = word[:-1]
+                elif word[-2:] == "\'s":
+                    word = word[:-2]
                 if word not in self.token_dict:
                     self.token_dict[word] = self.token_cnt
                     self.token_cnt += 1
@@ -49,22 +78,17 @@ class NN_Simple(nn.Module):
             elif len(new_sen_x) > self.mxSentenceLength:
                 new_sen_x = new_sen_x[:self.mxSentenceLength]
             sen_arr[id_out] = new_sen_x 
-        return torch.tensor(sen_arr, dtype = torch.float32)
+            state["text"] = torch.tensor(sen_arr, dtype = torch.float32)
+        return state
 
-    def forward(self, xtr):
-        # xtr = self.pre_process(x)
+    def forward(self, state):
+        xtr = state["text"]
         if torch.cuda.is_available():
             text = {key: val.to('cuda:0') for key, val in text.items()}
         op = self.fc(xtr)
         if torch.cuda.is_available(): 
             op = op.to(torch.device("cuda:0")) 
-        mu_dist = Categorical(logits=self.actor(op))
+        mu_dist = Categorical(logits = self.actor(op))
         value = self.critic(op)
         return mu_dist, value 
     
-# if __name__ == '__main__':
-#     nn_obj = NN_Simple()
-#     xtr = ["This is one hundred twenty . There are 1 blocks in hundred's place, 2 blocks in ten's place and 0 blocks in unit's place.",
-#            "This is one hundred twenty . There are 0 blocks in hundred's place, 0 blocks in ten's place and 0 blocks in unit's place. You are holding a hundred block."]
-#     mu, val = nn_obj(xtr)
-#     print(mu.sample())

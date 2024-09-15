@@ -59,7 +59,7 @@ class RlNlpWorld():
         self.prev_no = 0
         self.dismantle_target = [self.no%10, (self.no//10)%10, (self.no//100)%100]
         self.nlp_obj = CreateInstructions(self.no, type = self.instr_type)
-        self.mx_timeSteps,self.curr_time=math.ceil(sum(self.nlp_obj.split_no(self.no))*2*2.5),0 # 2.5 times is the buffer given to solve the problem
+        self.mx_timeSteps,self.curr_time = math.ceil(sum(self.nlp_obj.split_no(self.no))*2*2.5),0 # 2.5 times is the buffer given to solve the problem
         ## Gen initial info ##
         self.carry=False
         self.blocksLeft=[ (self.no//10**i)%10 for i in range(3) ]

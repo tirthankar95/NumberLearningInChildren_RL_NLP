@@ -13,7 +13,6 @@ suffix = [['easy','medium','hard','naive'], \
           ['onlp_easy','onlp_medium','onlp_hard','onlp_naive'], \
           ['anlp_easy','anlp_medium','anlp_hard','anlp_naive']] # Only NLP.
 
-
 def plot(data,ylb,title):
     plt.plot([i for i in range(1,)],data,color='mediumvioletred',marker='o')
     plt.title(title)
@@ -75,18 +74,6 @@ def get(state):
     state=data
     state["visual"]=np.array(state["visual"])
     return state
-
-def pre_process(state):
-    state["visual"] = torch.FloatTensor([state["visual"]])
-    temp_vis=torch.squeeze(state["visual"])
-    temp_vis=temp_vis.transpose(0,1).transpose(0,2) 
-    state["visual"]=torch.unsqueeze(temp_vis,dim=0)
-    return state["visual"]
-
-def pre_process_text(model, state):
-    TEXT = state["text"]+" [PAD]"*model.mxSentenceLength 
-    text = model.tokenizer(TEXT,padding=True,truncation=True,max_length=model.mxSentenceLength,return_tensors="pt")
-    return text 
     
 def gen_data(args): 
     train, test = None, None

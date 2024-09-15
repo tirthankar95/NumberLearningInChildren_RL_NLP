@@ -3,6 +3,7 @@ import torch.nn as nn
 import torchvision.models as models 
 import torch.nn.functional as F
 import torch.optim as optim
+import model_strategy_if as MS 
 import numpy as np
 import matplotlib.pyplot as plt 
 from torch.distributions import Categorical
@@ -12,7 +13,7 @@ import copy
 
 noOfActions=6
 epochA=0
-class NNModel(nn.Module):
+class NNModel(MS.NN_Strategy):
     def __init__(self):
         super().__init__()
         # ResNet18
@@ -46,17 +47,22 @@ class NNModel(nn.Module):
         )
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
-    def forward(self,image):
+    def forward(self, state):
+        image = state["visual"]
         image = image.to(self.device)
         op=self.resnet(image)
         opR1=self.fcResNet1(op)
         mu_dist=Categorical(logits=self.actor(opR1))
         value=self.critic(opR1)
         return mu_dist,value
-
+    
+    def pre_process(self, state):
+        state["visual"] = torch.FloatTensor(np.array([state["visual"]]))
+        temp_vis = torch.squeeze(state["visual"])
+        temp_vis = temp_vis.transpose(0,1).transpose(0,2) 
+        state["visual"] = torch.unsqueeze(temp_vis, dim=0)
+        return state
+    
     def display(self):
         for param in self.fcResNet0:
             print(param)
-'''
-------------------------------------------------------------------------------------
-'''

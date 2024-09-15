@@ -81,7 +81,8 @@ class CreateInstructions:
             if self.instr_cnt >= len(self.instructions): return ''
             return self.instructions[self.instr_cnt]
         if self.type == 'state':
-            if self.instr_cnt == 0: return self.common_prefix + "Let's use our blocks to build the number."
+            if self.instr_cnt == 0: return self.common_prefix + "There are 0 blocks in hundred\'s place, 0 blocks" + \
+                                                                " in ten\'s place and 0 blocks in unit\'s place."
             x, y, z = self.hun_state - state_def[0][0], \
                       self.ten_state - state_def[0][1], \
                       self.uni_state - state_def[0][2]

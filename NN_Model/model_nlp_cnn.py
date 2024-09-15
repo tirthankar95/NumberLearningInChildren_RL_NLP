@@ -3,6 +3,7 @@ import torch.nn as nn
 import torchvision.models as models 
 import torch.nn.functional as F
 import torch.optim as optim
+import model_strategy_if as MS 
 import numpy as np
 import matplotlib.pyplot as plt 
 from transformers import BertModel, BertTokenizer
@@ -16,7 +17,7 @@ LOG = logging.getLogger(__name__)
 
 noOfActions=6
 epochA=0
-class NNModelNLP(nn.Module):
+class NNModelNLP(MS.NN_Strategy):
     def __init__(self, job_type = None):
         super().__init__()
         self.resnet=models.resnet18(pretrained=True)
@@ -74,7 +75,8 @@ class NNModelNLP(nn.Module):
             for param in self.bert.parameters():
                 param.requires_grad = True 
     
-    def forward(self,image,text):
+    def forward(self, state):
+        image, text = state["visual"], state["text"]
         image = image.to(self.device)
         op = self.resnet(image)
         opR1 = self.fcResNet1(op)
@@ -88,25 +90,19 @@ class NNModelNLP(nn.Module):
         mu_dist = Categorical(logits=self.actor(torch.cat([opR2,opR1],dim=1)))
         value = self.critic(torch.cat([opR2,opR1],dim=1))
         return mu_dist,value 
-
-    def forward_transfer(self, text):
-        m = len(text)
-        image = torch.zeros(size = (m, 3, 224, 224))
-        op = self.resnet(image)
-        opR1 = self.fcResNet1(op)
-        if torch.cuda.is_available():
-            text = {key: val.to('cuda:0') for key, val in text.items()}
-        opR2 = self.bert(**text)[0]
-        opR2 = self.bertfc(opR2)
-        if torch.cuda.is_available():
-            opR1 = opR1.to(torch.device("cuda:0")) 
-            opR2 = opR2.to(torch.device("cuda:0"))
-        op_t = self.actor(torch.cat([opR2,opR1]))
-        return self.transfer(op_t)
-
+    
+    def pre_process_text(self, state):
+        # VISUAL
+        state["visual"] = torch.FloatTensor(np.array([state["visual"]]))
+        temp_vis = torch.squeeze(state["visual"])
+        temp_vis = temp_vis.transpose(0,1).transpose(0,2) 
+        state["visual"] = torch.unsqueeze(temp_vis, dim=0)
+        # TEXTUAL
+        TEXT = state["text"]+" [PAD]" * self.mxSentenceLength 
+        state["text"] = self.tokenizer(TEXT, padding = True, truncation = True, \
+                                       max_length = self.mxSentenceLength,return_tensors="pt")
+        return state 
+    
     def display(self):
         for param in self.fcResNet0:
             print(param)
-'''
-------------------------------------------------------------------------------------
-'''
