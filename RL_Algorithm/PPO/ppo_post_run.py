@@ -76,7 +76,8 @@ if __name__=='__main__':
         LOG.info(f'TEST NAME {key}')
         # plot_ppo(f"train_model_d3_{args["model"]}{"" if args["instr_type"] == 0 else "s"}.json",value["output_path"])
         model = MCM(value["model"]["type"]).model
-        model.load_state_dict(torch.load(f'{value["model"]["path"]}'))
+        model.load_state_dict(torch.load(f'{value["model"]["path"]}', \
+                                         weights_only = False))
         
         # TRAIN
         train_set, train_dict, avg_cum = [1], {}, 0
