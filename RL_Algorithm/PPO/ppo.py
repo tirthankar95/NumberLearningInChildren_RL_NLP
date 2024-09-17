@@ -57,8 +57,6 @@ def ppo_iter(mini_batch_size, states, actions, log_probs, returns, advantage):
         yield states[lb : ub], actions[lb : ub], log_probs[lb : ub], \
               returns[lb : ub], advantage[lb : ub]
         
-
-
 def ppo_update(model, optimizer, ppo_epochs, mini_batch_size, states, actions, log_probs, returns, advantages, clip_param=0.2):
     global frame_idx
     for _ in range(ppo_epochs):
@@ -71,11 +69,9 @@ def ppo_update(model, optimizer, ppo_epochs, mini_batch_size, states, actions, l
             surr2 = torch.clamp(ratio, 1.0 - clip_param, 1.0 + clip_param) * advantage
             actor_loss  = - torch.min(surr1, surr2).mean()
             critic_loss = (return_ - value).pow(2).mean()
-            loss = 0.5 * critic_loss + actor_loss - 0.1 * entropy
-            LOG.debug(f'Shapes RS[{ratio.shape}], NLPS[{new_log_probs.shape}], OLPS[{old_log_probs.shape}], S1S[{surr1.shape}], S2S[{surr2.shape}], AS[{advantage.shape}]')
-            LOG.debug(f'TL[{loss.item()}], CL[{critic_loss.item()}], AL[{actor_loss.item()}], EL[{entropy.item()}]')
-            if frame_idx % 1000 == 0:
-                LOG.info(f'TL[{loss.item()}], CL[{critic_loss.item()}], AL[{actor_loss.item()}], EL[{entropy.item()}]')
+            loss = 0.5 * critic_loss + actor_loss - 0.01 * entropy
+            if frame_idx % 5000 == 0:
+                LOG.info(f'TL[{round(loss.item(), 5)}], CL[{round(critic_loss.item(), 5)}], AL[{round(actor_loss.item(), 5)}], EL[{round(entropy.item(), 5)}]')
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -108,7 +104,6 @@ def test_env_with_trainset(model):
     model = model.train()
     return cum_reward/len(train_set)
 
-                
 if __name__=='__main__':
     with open('Configs/train_config.json', 'r') as file:
         args = json.load(file)
@@ -205,7 +200,7 @@ if __name__=='__main__':
         returns = torch.cat(returns).detach()
         log_probsArr = torch.cat(log_probsArr).detach()
         valuesArr = torch.cat(valuesArr).detach()
-        actionsArr = torch.cat(actionsArr)
+        actionsArr = torch.cat(actionsArr).detach()
         advantage = returns - valuesArr
         ppo_update(model, optimizer, ppo_epochs, mini_batch_size, statesArr, \
                    actionsArr, log_probsArr, returns, advantage)

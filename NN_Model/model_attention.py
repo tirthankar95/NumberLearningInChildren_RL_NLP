@@ -5,7 +5,7 @@ import torch.nn.functional as F
 from torch.distributions import Categorical
 import model_strategy_if as MS 
 import numpy as np
-import os 
+
 # FROM NLTK, download takes lot of time.
 stopwords = [
     'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', "you're", \

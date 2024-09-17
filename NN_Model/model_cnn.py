@@ -46,9 +46,15 @@ class NNModel(MS.NN_Strategy):
             nn.Linear(self.important_features_image//2,1)
         )
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        
+
+    def rearrange(self, state):
+        imgs = []
+        for st in state:
+            imgs.append(st["visual"].squeeze(0))
+        return torch.stack(imgs)
+    
     def forward(self, state):
-        image = state["visual"]
+        image = self.rearrange(state)
         image = image.to(self.device)
         op=self.resnet(image)
         opR1=self.fcResNet1(op)

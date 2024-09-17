@@ -1,17 +1,11 @@
 import torch 
 import torch.nn as nn 
 import torchvision.models as models 
-import torch.nn.functional as F
-import torch.optim as optim
 import model_strategy_if as MS 
 import numpy as np
-import matplotlib.pyplot as plt 
 from transformers import BertModel, BertTokenizer
 from torch.distributions import Categorical
-import seaborn 
-import utils as U
-import json
-import copy 
+from collections import defaultdict
 import logging
 LOG = logging.getLogger(__name__)
 
@@ -74,9 +68,19 @@ class NNModelNLP(MS.NN_Strategy):
         if option == "full" or option == "language":
             for param in self.bert.parameters():
                 param.requires_grad = True 
+
+    def rearrange(self, state):
+        imgs, txt = [], defaultdict(list)
+        for st in state:
+            imgs.append(st["visual"].squeeze(0))
+            for k, v in st["text"].items():
+                txt[k].append(v.squeeze(0))
+        for k, v in txt.items():
+            txt[k] = torch.stack(txt[k])
+        return torch.stack(imgs), txt
     
     def forward(self, state):
-        image, text = state["visual"], state["text"]
+        image, text = self.rearrange(state)
         image = image.to(self.device)
         op = self.resnet(image)
         opR1 = self.fcResNet1(op)
@@ -91,7 +95,7 @@ class NNModelNLP(MS.NN_Strategy):
         value = self.critic(torch.cat([opR2,opR1],dim=1))
         return mu_dist,value 
     
-    def pre_process_text(self, state):
+    def pre_process(self, state):
         # VISUAL
         state["visual"] = torch.FloatTensor(np.array([state["visual"]]))
         temp_vis = torch.squeeze(state["visual"])

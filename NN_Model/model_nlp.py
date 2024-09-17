@@ -80,9 +80,15 @@ class NN_Simple(MS.NN_Strategy):
             sen_arr[id_out] = new_sen_x 
             state["text"] = torch.tensor(sen_arr, dtype = torch.float32)
         return state
-
+    
+    def rearrange(self, state):
+        txt = []
+        for st in state:
+            txt.append(st["text"].squeeze(0))
+        return torch.stack(txt)
+    
     def forward(self, state):
-        xtr = state["text"]
+        xtr = self.rearrange(state)
         if torch.cuda.is_available():
             text = {key: val.to('cuda:0') for key, val in text.items()}
         op = self.fc(xtr)

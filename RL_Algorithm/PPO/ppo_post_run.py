@@ -94,7 +94,7 @@ if __name__=='__main__':
         LOG.info(f'Train Dict {value["output_path"]}/train_dict.json')
 
         # FULL Test 
-        if args["full_test"] == 1:
+        if False and args["full_test"] == 1:
             full_test = {}
             avg_cum = 0
             for no in range(1, 1000):
