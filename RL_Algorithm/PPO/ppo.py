@@ -56,11 +56,17 @@ def ppo_iter(mini_batch_size, states, actions, log_probs, returns, advantage):
         ub = min(tr_size, lb + mini_batch_size)
         yield states[lb : ub], actions[lb : ub], log_probs[lb : ub], \
               returns[lb : ub], advantage[lb : ub]
-        
+ 
 def ppo_update(model, optimizer, ppo_epochs, mini_batch_size, states, actions, log_probs, returns, advantages, clip_param=0.2):
     global frame_idx
     for _ in range(ppo_epochs):
         for state, action, old_log_probs, return_, advantage in ppo_iter(mini_batch_size, states, actions, log_probs, returns, advantages):
+            if frame_idx == 5000: # Save data once for sanity check.
+                np.save("saved_samples/state.npy", state)
+                np.save("saved_samples/action.npy", action)
+                np.save("saved_samples/oprob.npy", old_log_probs)
+                np.save("saved_samples/return.npy", return_)
+                np.save("saved_samples/advantage.npy", advantage)
             dist, value = model(state)
             entropy = dist.entropy().mean()
             new_log_probs = dist.log_prob(action)
@@ -105,6 +111,7 @@ def test_env_with_trainset(model):
     return cum_reward/len(train_set)
 
 if __name__=='__main__':
+    mini_batch_size, ppo_epochs, n_agents = 1, 1, 1 # 16, 4, 4
     with open('Configs/train_config.json', 'r') as file:
         args = json.load(file)
     logging.basicConfig(level = args["log"], format='%(asctime)3s - %(filename)s:%(lineno)d - %(message)s')
@@ -125,9 +132,7 @@ if __name__=='__main__':
             for id, word in enumerate(suf):
                 suf[id] = word + '_stateInstr' 
     env = RlNlpWorld(render_mode="rgb_array", instr_type = instr_type)
-    lr               = 1e-5
-    mini_batch_size  = 16
-    ppo_epochs       = 4
+    lr = 1e-5
     model = MCM(args["model"]).model
     try:
         with open('Configs/test_path.json','r') as file:
@@ -142,12 +147,10 @@ if __name__=='__main__':
     _start_time, prev_time = time.time(), time.time()
     action_dict, reward_dict = defaultdict(int), defaultdict(int)
     episodeNo = 0
-    n_agents = 4
     while frame_idx < max_frames:
         if time.time() - prev_time > 300: # Every 5 mins
             prev_time=time.time()
-            LOG.warning(f'% Exec Left {100 - (frame_idx*100/max_frames)}; \
-                        Time Consumed {time.time() - _start_time} sec')
+            LOG.warning(f'% Exec Left {100 - (frame_idx*100/max_frames)}; Time Consumed {time.time() - _start_time} sec')
         log_probsArr = []
         valuesArr    = []
         statesArr    = []
@@ -155,13 +158,11 @@ if __name__=='__main__':
         rewardsArr   = []
         masksArr     = []
         entropy = 0
-        state, nos = RESETS(env)
-        state = model.pre_process(state)
         episodeNo += 1
         completed = False
         # PARALLEL AGENTS.
         for agent in range(n_agents):
-            state, nos = RESETS(env, nos, True)
+            state, nos = RESETS(env)
             state = model.pre_process(state)
             for _iter in range(max_steps_per_episode):
                 dist, value = model([state])
@@ -181,6 +182,7 @@ if __name__=='__main__':
                 state = copy.deepcopy(next_state)
                 if frame_idx % 5000 == 0:
                     LOG.warning(f'Discovery {action_dict}, {reward_dict}')
+                if agent == 0: frame_idx += 1
                 if done: 
                     if reward == 1: completed = True 
                     break
@@ -191,7 +193,6 @@ if __name__=='__main__':
                     json.dump(test_rewards, file)
                 LOG.warning(f'Saving Model ...')
                 torch.save(model.state_dict(),f'Results/model_{suffix[args["model"]][args["order"]]}.ml')            
-            frame_idx += 1
 
         with torch.no_grad():
             temp_var = torch.tensor(rewardsArr).squeeze()

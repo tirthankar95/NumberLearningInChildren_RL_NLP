@@ -3,27 +3,9 @@ import torch.nn as nn
 import numpy as np
 from torch.distributions import Categorical 
 import model_strategy_if as MS 
-# FROM NLTK, download takes lot of time.
-stopwords = [
-    'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', "you're", \
-    "you've", "you'll", "you'd", 'your', 'yours', 'yourself', 'yourselves', 'he', \
-    'him', 'his', 'himself', 'she', "she's", 'her', 'hers', 'herself', 'it', "it's", \
-    'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', \
-    'which', 'who', 'whom', 'this', 'that', "that'll", 'these', 'those', 'am', \
-    'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', \
-    'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', \
-    'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', \
-    'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', \
-    'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', \
-    'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', \
-    'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', \
-    'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', \
-    "don't", 'should', "should've", 'now', 'd', 'll', 'm', 'o', 're', 've', 'y', 'ain', \
-    'aren', "aren't", 'couldn', "couldn't", 'didn', "didn't", 'doesn', "doesn't", 'hadn', \
-    "hadn't", 'hasn', "hasn't", 'haven', "haven't", 'isn', "isn't", 'ma', 'mightn', \
-    "mightn't", 'mustn', "mustn't", 'needn', "needn't", 'shan', "shan't", 'shouldn', \
-    "shouldn't", 'wasn', "wasn't", 'weren', "weren't", 'won', "won't", 'wouldn', "wouldn't"
-]
+import json
+
+
 
 class NN_Simple(MS.NN_Strategy):
     def __init__(self):
@@ -48,8 +30,12 @@ class NN_Simple(MS.NN_Strategy):
                                         nn.Linear(32, 1)
         )
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.token_dict = {}; self.token_dict['[PAD]'] = 0
-        self.token_cnt = 1
+        with open("./NN_Model/model_data/token.json", "r") as file:
+            self.token_dict = json.load(file)
+        # FROM NLTK, download takes lot of time.
+        with open("./NN_Model/model_data/stopwords.json", "r") as file:
+            self.stopwords = json.load(file)
+
     
     def pre_process(self, state):
         xs = [state["text"]]
@@ -61,15 +47,10 @@ class NN_Simple(MS.NN_Strategy):
             # Tokenize & remove useless words.
             for id, word in enumerate(sen_x):
                 word = word.lower()
-                if word in stopwords: continue
+                if word in self.stopwords: continue
                 if word in self.punctuations: continue
-                elif word[-1] == '.' or word[-1] == ',':
-                    word = word[:-1]
-                elif word[-2:] == "\'s":
-                    word = word[:-2]
-                if word not in self.token_dict:
-                    self.token_dict[word] = self.token_cnt
-                    self.token_cnt += 1
+                elif word[-1] == '.' or word[-1] == ',': word = word[:-1]
+                elif word[-2:] == "\'s": word = word[:-2]
                 new_sen_x.append(self.token_dict[word])
             # Padding & Truncation.
             if len(new_sen_x) < self.mxSentenceLength:
