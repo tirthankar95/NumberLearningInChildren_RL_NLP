@@ -58,15 +58,16 @@ def ppo_iter(mini_batch_size, states, actions, log_probs, returns, advantage):
               returns[lb : ub], advantage[lb : ub]
  
 def ppo_update(model, optimizer, ppo_epochs, mini_batch_size, states, actions, log_probs, returns, advantages, clip_param=0.2):
-    global frame_idx
+    global frame_idx, once
     for _ in range(ppo_epochs):
         for state, action, old_log_probs, return_, advantage in ppo_iter(mini_batch_size, states, actions, log_probs, returns, advantages):
-            if frame_idx == 5000: # Save data once for sanity check.
+            if frame_idx > 5000 and once: # Save data once for sanity check.
                 np.save("saved_samples/state.npy", state)
                 np.save("saved_samples/action.npy", action)
                 np.save("saved_samples/oprob.npy", old_log_probs)
                 np.save("saved_samples/return.npy", return_)
                 np.save("saved_samples/advantage.npy", advantage)
+                once = False 
             dist, value = model(state)
             entropy = dist.entropy().mean()
             new_log_probs = dist.log_prob(action)
@@ -92,6 +93,18 @@ def compute_gae(rewards, masks, values, gamma=0.99, tau=0.95):
         returns.insert(0, gae + values[step])
     return returns
 
+best_policy_arr, best_policy_indx = [], -1
+def best_policy(no = -1):
+    global best_policy_arr, best_policy_indx
+    if no != -1:
+        h, t, u = (no % 1000) // 100, (no % 100) // 10, (no % 10) // 1
+        best_policy_arr = [0, 3] * h + [1, 4] * t, [2, 5] * u
+        best_policy_indx = -1
+        return None
+    best_policy_indx += 1
+    return best_policy_arr[best_policy_indx]
+
+
 def test_env_with_trainset(model):
     global max_steps_per_episode, device 
     model = model.eval()
@@ -111,7 +124,8 @@ def test_env_with_trainset(model):
     return cum_reward/len(train_set)
 
 if __name__=='__main__':
-    mini_batch_size, ppo_epochs, n_agents = 1, 1, 1 # 16, 4, 4
+    once = True
+    mini_batch_size, ppo_epochs, n_agents = 16, 4, 4
     with open('Configs/train_config.json', 'r') as file:
         args = json.load(file)
     logging.basicConfig(level = args["log"], format='%(asctime)3s - %(filename)s:%(lineno)d - %(message)s')
@@ -119,7 +133,7 @@ if __name__=='__main__':
     LOG.warning(f'Params: {args}')
     train_set, eval_set = gen_data(args)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    scale_tr, rank_train = 10, [[0, -1, 1, no] for no in train_set] # [Total_rank, Reward, No_of_times_encountered, no]
+    scale_tr, rank_train = 1, [[0, -1, 1, no] for no in train_set] # [Total_rank, Reward, No_of_times_encountered, no]
     no_count = 0
     max_episodes = max(scale_tr * len(train_set), args["iter"])
     max_steps_per_episode_list=[40, 50, 64, 5] 
@@ -160,13 +174,17 @@ if __name__=='__main__':
         entropy = 0
         episodeNo += 1
         completed = False
+        override_action = True
         # PARALLEL AGENTS.
         for agent in range(n_agents):
             state, nos = RESETS(env)
+            best_policy(nos)
             state = model.pre_process(state)
             for _iter in range(max_steps_per_episode):
                 dist, value = model([state])
                 action = dist.sample()
+                if override_action: 
+                    action = torch.tensor(best_policy(-1))
                 next_state, reward, done, info = STEPS(env, action.item())
                 next_state = model.pre_process(next_state) 
                 action_dict[action.item()] += 1

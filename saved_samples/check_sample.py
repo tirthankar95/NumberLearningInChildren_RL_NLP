@@ -11,7 +11,7 @@ def get_sentence(tokens):
     
 # Only check for simple model.
 if __name__ == "__main__":
-    sno = 1 
+    sno = 2 
     state = np.load(f"sample{sno}/state.npy", allow_pickle = True)
     action = np.load(f"sample{sno}/action.npy", allow_pickle = True)
     returns = np.load(f"sample{sno}/return.npy", allow_pickle = True)
