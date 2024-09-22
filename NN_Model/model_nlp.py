@@ -23,11 +23,11 @@ class NN_Simple(MS.NN_Strategy):
         )
         # ACTOR
         self.actor = nn.Sequential( nn.ReLU(),
-                                       nn.Linear(32, self.noOfActions)
+                                    nn.Linear(32, self.noOfActions)
         )
         # CRITIC
         self.critic = nn.Sequential( nn.ReLU(),
-                                        nn.Linear(32, 1)
+                                     nn.Linear(32, 1)
         )
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         with open("./NN_Model/model_data/token.json", "r") as file:
@@ -75,7 +75,8 @@ class NN_Simple(MS.NN_Strategy):
         op = self.fc(xtr)
         if torch.cuda.is_available(): 
             op = op.to(torch.device("cuda:0")) 
-        mu_dist = Categorical(logits = self.actor(op))
+        logit = self.actor(op)
+        mu_dist = Categorical(logits = logit)
         value = self.critic(op)
-        return mu_dist, value 
+        return mu_dist, value
     
