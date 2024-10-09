@@ -1,15 +1,19 @@
 **The Reinforcement Learning Environment**
 
 `Policy type instruction [DEMO]`
+
 <img src="Readme_Images/RL_ENV.gif" alt="Policy Type Instruction" width = 35%>
 
 ---
+
 **Software Architecture**
 
 `During Training`
+
 <img src="Readme_Images/SA_train.png" alt="Software Architecture during training" width="60%"/>
 
 `During Testing`
+
 <img src="Readme_Images/SA_test.png" alt="Software Architecture during testing" width="60%"/>
 
 ---
