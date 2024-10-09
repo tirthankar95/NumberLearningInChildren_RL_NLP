@@ -1,19 +1,19 @@
 **The Reinforcement Learning Environment**
 
 `Policy type instruction [DEMO]`
-![Policy Type Instruction](Readme_Images/RL_ENV.gif)
+<img src="Readme_Images/RL_ENV.gif" alt="Policy Type Instruction" width = 35%>
 ---
 **Software Architecture**
 
 `During Training`
-![Software Architecture during training](Readme_Images/SA_train.png)
+<img src="Readme_Images/SA_train.png" alt="Software Architecture during training" width="60%"/>
 `During Testing`
-![Software Architecture during testing](Readme_Images/SA_test.png)
+<img src="Readme_Images/SA_test.png" alt="Software Architecture during testing" width="60%"/>
 
 ---
 **How to run the code?**
 
-0. Git clone the project **https://github.com/TheDELLab/NumberLearningInChildren_RL_Language.git** and go inside one directory. Check if you have permission to clone the repository. 
+0. Git clone the project **https://github.com/tirthankar95/NumberLearningInChildren_RL_NLP.git** and go inside one directory. Check if you have permission to clone the repository. 
 1. Download glove embeddings **wget http://nlp.stanford.edu/data/glove.6B.zip** and unzip it **unzip glove\*.zip**.
 2. Pull the environment(docker image) for running the code from docker-hub using. 
    **sudo docker pull tirthankar95/rl-nlp:latest**.
@@ -36,3 +36,5 @@
 `model` $\epsilon$ {0, 1, 2, 3}<br />
 `instr_type` $\epsilon$ {0, 1}<br />
 And then do step 1 & 2, after dumping all the necessary files in the Analysis folder do step 3. This will give consolidated graphs as depicted in the paper.
+
+**`Copyright (c) 2024 Tirthankar Mittra`**
