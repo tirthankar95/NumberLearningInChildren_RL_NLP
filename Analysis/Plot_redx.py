@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from random import *
 import ast 
+import os 
 import sys
 import math
 sns.set_style('darkgrid')
@@ -245,6 +246,32 @@ def state_vs_policy():
     plt.savefig(f'{prefix}3D_DiffPolicyTest.png', dpi = image_resolution)
     plt.show()
     bar_width = 17.5 
+def cl_learning():
+    def get_reward(filename):
+        prefix = "Reward["
+        value = []
+        with open(f"{filename}", "r") as file:
+            for sentence in file:
+                tokens = sentence.split()
+                value.append( float(tokens[-1][len(prefix):-1]) )
+        return sum(value)/len(value)
+    barwidth = 3.75
+    policy_based = ["console_output_digit3_3.pt1", "console_output_digit3_3.pt2", "console_output_digit3_3.pt3"]
+    state_based = ["console_output_digit3_3.pt1", "console_output_digit3_3.pt2", "console_output_digit3_3.pt3"]
+    colors = ["yellow", "orange", "red"]
+    labels = ["Atten. based Increasing Ord.", "Atten. based MyOptimal Ord.", "Atten. based Decreasing Ord."]
+    plt.figure(figsize=(10,5))
+    for idx, state in enumerate(state_based):
+        x = [0, 25]
+        y = [get_reward(os.path.join("CL", "policy", policy_based[idx])),
+            get_reward(os.path.join("CL", "state", state))]
+        plt.bar(np.array(x) + idx * barwidth, y, barwidth, color = colors[idx], label = labels[idx])
+    plt.xticks(np.array(x) + barwidth, ("0-99 policy instr.", "0-99 state instr."))
+    plt.legend(fontsize = 8, loc='lower center')
+    plt.xlabel("Upto 2 digit numbers.")
+    plt.ylabel("Average reward.")
+    plt.title("Results for different instruction types in attention model.")
+    plt.savefig(f'{os.path.join("CL", "2D_CL_Tr.png")}', dpi = 1024)
 
 '''
     Driver Function.
@@ -253,3 +280,4 @@ if __name__ == '__main__':
     tr_curve()
     digit3_plot()
     state_vs_policy()
+    cl_learning()
